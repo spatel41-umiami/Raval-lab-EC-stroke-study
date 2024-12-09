@@ -1,0 +1,49 @@
+---
+title: "EC tMCAO Data Bonferroni"
+author: "Isha"
+date: "2023-12-20"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(rstatix)
+library(ggpubr)
+library(ggplot2)
+library(broom)
+library(DescTools)
+library(postHoc)
+```
+
+```{r Water Maze, echo=FALSE}
+
+```
+
+```{r Working Memory, echo=FALSE}
+
+```
+
+```{r CBF, echo=FALSE}
+##generate ANOVA
+data <- read_excel("C:/Users/isshi/OneDrive/Desktop/Raval Data/Data Sets/CBF ANOVA.xlsx")
+data$Group <- as.factor(data$Group)
+data$Sex <- as.factor(data$Sex)
+data$Time <- as.factor(data$Time)
+model <- aov( cbf ~ Group * Sex * Time, data = data)
+anova_results <- summary(model)
+anova_results
+post <- PostHocTest(model,
+            method = c("bonferroni"),
+            conf.level = 0.95, ordered = FALSE)
+cbf_df <- data.frame(post$`Group:Sex:Time`)
+cbf_df$comparisons <- row.names(cbf_df)
+cbf_df
+```
+
+```{r Cylinder, echo=FALSE}
+
+```
+

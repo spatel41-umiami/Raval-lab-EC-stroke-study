@@ -1,0 +1,20 @@
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(rstatix)
+library(tidyverse)
+library(ggpubr)
+library(ggplot2)
+library(broom)
+
+data <- read_excel("Cylinder Data.xlsx")
+data$Group <- as.factor(data$Group)
+data$Sex <- as.factor(data$Sex)
+data$Time <- as.factor(data$Time)
+model <- aov(Asymmetry ~ Group * Sex * Time, data = data)
+anova_results <- summary(model)
+anova_results
+
+test <- data%>% tukey_hsd(Asymmetry ~ Group * Sex * Time, data = data)
+print(test)
+DataEditR::data_edit(test)

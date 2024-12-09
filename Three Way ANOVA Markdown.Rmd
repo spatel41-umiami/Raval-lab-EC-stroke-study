@@ -1,0 +1,108 @@
+---
+title: "Three Way ANOVA Working Memory"
+author: "Isha"
+date: "2023-12-18"
+output: pdf_document
+---
+
+```{r}
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(rstatix)
+library(tidyverse)
+library(ggpubr)
+library(ggplot2)
+library(broom)
+data<- read_csv("WM2Tukey.csv",show_col_types = FALSE)
+```
+
+```{r}
+data$Group <- as.factor(data$Group)
+data$Sex <- as.factor(data$Sex)
+data$Trial <- as.factor(data$Trial)
+```
+
+```{r}
+model <- aov(Latency ~ Group * Sex * Trial, data = data)
+anova_results <- summary(model)
+anova_results
+```
+
+```{r}
+test <- data%>% tukey_hsd(Latency ~ Sex*Group*Trial, data = data)
+print(test)
+DataEditR::data_edit(test)
+```
+
+```{r}
+install.packages("postHoc")
+```
+
+```{r}
+library(dplyr)
+library(rstatix)
+library(tidyverse)
+library(ggpubr)
+library(ggplot2)
+library(tidyr)
+library(DescTools)
+data<- read_excel("ECtMWorkingMem.xlsx")
+View(data)
+Group <- factor(data$Group) 
+levels(Group) <- c("Air Sham","Air tMCAO","EC Sham","EC tMCAO")
+Sex <- factor(data$Sex)
+levels(Sex) <- c("Male","Female")
+Trial <-factor(data$Trial)
+levels(Trial) <- c("Trial 1", "Trial 2")
+summary.aov = summary(data[c('Trial','Group','Sex','Latency')]); summary.aov
+results<-aov(Latency~Trial*Group*Sex, data=data)
+anova(results)
+tukey<-TukeyHSD(results); tukey
+cbind.data.frame(tukey)
+
+```
+
+```{r}
+data$Group <- as.factor(data$Group)
+data$Sex <- as.factor(data$Sex)
+data$Trial <- as.factor(data$Trial)
+model <- aov(Latency ~ Group * Sex * Trial, data = data)
+aov_summary <- summary.aov(model)
+aov_summary
+```
+
+
+
+
+Mean Table
+
+```{r}
+names(WorkingMemory) <- c("id","treatment","surgery", "sex", "t1","t2")
+  WorkingMemory %>% sample_n_by(surgery, treatment, size = 1)
+
+WorkingMemory <- WorkingMemory %>%
+  gather(key = "time", value = "latency" , t1, t2) %>% convert_as_factor(id, time)
+
+WorkingMemory %>%
+  group_by(surgery, treatment, sex,time) %>%
+  get_summary_stats(latency, type = "mean_sd")
+```
+
+ANOVA Data Table
+
+```{r}
+WorkingMemory.aov <- anova_test(
+  data = WorkingMemory, dv = latency, wid = id,
+  within = time, between = c(surgery, treatment, sex))
+WorkingMemory.aov
+
+```
+
+```{r}
+pwc <- WorkingMemory.aov %>%
+  group_by(sex,surgery,treatment) %>%
+  pairwise_t_test(latency ~ time, p.adjust.method = "bonferroni") %>%
+  select(-p, -p.signif)
+pwc
+```

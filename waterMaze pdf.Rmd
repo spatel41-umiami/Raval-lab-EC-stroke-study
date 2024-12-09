@@ -1,0 +1,47 @@
+---
+title: "WaterMaze"
+author: "Isha"
+date: "2023-12-19"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(rstatix)
+library(tidyverse)
+library(ggpubr)
+library(ggplot2)
+library(broom)
+```
+
+
+```{r}
+# Replace 'path_to_your_file' with the actual file path
+data <- read_excel("WaterMaze_rev.xlsx")
+
+# Convert Group, Sex, and Days to factor variables
+data$Group <- as.factor(data$Group)
+data$Sex <- as.factor(data$Sex)
+data$Days <- as.factor(data$Days)
+
+
+pdf("ANOVA_results.pdf")
+# Perform three-way ANOVA
+model <- aov(Latency ~ Group * Sex * Days, data = data)
+anova_results <- summary(model)
+anova_results
+
+posthoc<- model%>% tukey_hsd()
+test <- data%>% tukey_hsd(Latency ~ Sex*Group*Days, data = data)
+print(posthoc)
+print(test)
+print(test,n=685)
+pdf("test")
+```
+```{r}
+DataEditR::data_edit(test)
+```
+

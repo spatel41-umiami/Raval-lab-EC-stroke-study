@@ -1,0 +1,38 @@
+---
+title: "CBF"
+author: "Isha"
+date: "2023-12-19"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(rstatix)
+library(ggpubr)
+library(ggplot2)
+library(broom)
+library(DataEditR)
+```
+
+```{r}
+data <- read_excel("C:/Users/isshi/OneDrive/Desktop/Raval Data/Data Sets/CBF ANOVA.xlsx")
+data$Group <- as.factor(data$Group)
+data$Sex <- as.factor(data$Sex)
+data$Time <- as.factor(data$Time)
+
+```
+
+```{r}
+model <- aov( cbf ~ Group * Sex * Time, data = data)
+anova_results <- summary(model)
+anova_results
+test <- data%>% tukey_hsd(cbf ~ Sex*Group*Time, data = data)
+print(test)
+```
+
